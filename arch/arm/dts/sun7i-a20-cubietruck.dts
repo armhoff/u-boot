@@ -275,7 +275,7 @@
 
                 rootfs@800000 {
                         label = "rootfs";
-                        reg = /bits/ 64 <0x800000 0xff800000>;
+                        reg = /bits/ 64 <0x800000 0x1ff800000>;
                         nand-ecc-mode = "hw";
                         nand-rnd-mode = "hw";
                 };
