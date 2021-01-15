@@ -188,7 +188,7 @@ endif
 ifdef CONFIG_ARCH_SUNXI
 ALL-y	+= $(obj)/sunxi-spl.bin
 
-ifdef CONFIG_NAND_SUNXI
+ifdef CONFIG_SPL_NAND_SUNXI
 ALL-y	+= $(obj)/sunxi-spl-with-ecc.bin
 endif
 endif
