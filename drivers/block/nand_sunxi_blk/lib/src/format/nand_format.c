@@ -579,7 +579,8 @@ static void _DumpDieInfo(struct __ScanDieInfo_t *pDieInfo)
 		FORMAT_DBG("       [Index]             [LogicalBlk]         [LogBlk]        [DataBlk]\n");
         for(tmpLog=0; tmpLog<MAX_LOG_BLK_CNT; tmpLog++)
         {
-            tmpLogBlk = tmpLogBlk;
+            //@mhoffrog - fix useless code
+        	//tmpLogBlk = tmpLogBlk;
             tmpLogBlk = &tmpZoneInfo->LogBlkTbl[tmpLog];
             FORMAT_DBG("      %x           %x          %x        %x\n", tmpLog, tmpLogBlk->LogicBlkNum,
     		    tmpLogBlk->PhyBlk.PhyBlkNum,
@@ -857,7 +858,8 @@ static __s32 _GetLastUsedPage(__u32 nDieNum, __u32 nBlock)
 
             //get the spare area data of the page to check if the page is free
             _VirtualPageRead(nDieNum, nBlock, tmpMidPage, 0x3, FORMAT_PAGE_BUF, (void *)&tmpSpare);
-            tmpUsedPage = tmpMidPage;
+            //@mhoffrog - take fix from aw_zh_uBoot_nand_sunxi/sun7i/lib-nand/src/format/nand_format.c
+            //tmpUsedPage = tmpMidPage;
 
             if((tmpSpare.PageStatus == FREE_PAGE_MARK) && (tmpSpare.LogicPageNum == 0xffff))
             {
@@ -869,6 +871,8 @@ static __s32 _GetLastUsedPage(__u32 nDieNum, __u32 nBlock)
             {
                 //look for the last table group in the hind pages
                 tmpLowPage = tmpMidPage + 1;
+                //@mhoffrog - take fix from aw_zh_uBoot_nand_sunxi/sun7i/lib-nand/src/format/nand_format.c
+				tmpUsedPage = tmpMidPage;
             }
         }
 
