@@ -32,7 +32,8 @@ extern  struct __ZoneTblPstInfo_t       ZoneTblPstInfo[MAX_ZONE_CNT];
 
 extern  struct __NandStorageInfo_t      NandStorageInfo;
 extern  struct __NandPageCachePool_t    PageCachePool;
-extern  struct __NandPartInfo_t         NandPartInfo[NAND_MAX_PART_CNT];
+//@mhoffrog - fix - unused warning
+//extern  struct __NandPartInfo_t         NandPartInfo[NAND_MAX_PART_CNT];
 
 
 //define some local variable
@@ -582,9 +583,13 @@ static void _DumpDieInfo(struct __ScanDieInfo_t *pDieInfo)
             //@mhoffrog - fix useless code
         	//tmpLogBlk = tmpLogBlk;
             tmpLogBlk = &tmpZoneInfo->LogBlkTbl[tmpLog];
-            FORMAT_DBG("      %x           %x          %x        %x\n", tmpLog, tmpLogBlk->LogicBlkNum,
+            //@mhoffrog - use this if check to avoid unused warning for tmpLogBlk in case FORMAT_DBG_MESSAGE_ON is not set
+            if (NULL != tmpLogBlk)
+            {
+              FORMAT_DBG("      %x           %x          %x        %x\n", tmpLog, tmpLogBlk->LogicBlkNum,
     		    tmpLogBlk->PhyBlk.PhyBlkNum,
     		    (tmpLogBlk->LogicBlkNum == 0xffff)? 0xffff : tmpZoneInfo->ZoneTbl[tmpLogBlk->LogicBlkNum].PhyBlkNum);
+            }
         }
     }
 
