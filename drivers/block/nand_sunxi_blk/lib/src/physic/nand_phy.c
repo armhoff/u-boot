@@ -652,7 +652,9 @@ __s32 _read_sectors(struct boot_physical_param *readop,__u8 dma_wait_mode)
 				ret = NFC_Read(cmd_list, data_buf, sparebuf, dma_wait_mode , NFC_PAGE_MODE);
 				NFC_RandomDisable();
 				if(ret == -ERR_ECC)
+				{
 					ret = NFC_Read(cmd_list, data_buf, sparebuf, dma_wait_mode , NFC_PAGE_MODE);
+				}
 
 					/**************************************************************************************
 					* 1. add by Neil, from v2.09
@@ -1029,7 +1031,7 @@ __s32 _read_sectors_for_spare(struct boot_physical_param *readop,__u8 dma_wait_m
 	__u32 column;
 	__u32 list_len,i,j, k;
 	__u32 rb;
-	__s32 ret, ret1 , free_page_flag, read_retry_exit_flag;
+	__s32 ret, ret1, free_page_flag;
 	__u32 ecc_size;
 	__s32 random_seed;
 	NFC_CMD_LIST cmd_list[4];
@@ -1050,7 +1052,6 @@ __s32 _read_sectors_for_spare(struct boot_physical_param *readop,__u8 dma_wait_m
 
 	ret = 0;
 	ret1 = 0;
-	read_retry_exit_flag = 0;
 
 	_cal_addr_in_chip(readop->block,readop->page, 0, addr, 5);
 	_add_cmd_list(cmd_list,0x00,5,addr, NFC_NO_DATA_FETCH,NFC_IGNORE,NFC_IGNORE, NFC_IGNORE);

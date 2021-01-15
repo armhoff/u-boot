@@ -31,7 +31,9 @@
 struct __NandStorageInfo_t  NandStorageInfo={0};
 struct __NandPageCachePool_t PageCachePool={0};
 __u32 RetryCount[8]={0};
-const __u16 random_seed[128] = {
+/* @mhoffrog - FIXME - there is an overlap with drivers/mtd/nand/sunxi_nand_spl.c */
+/*const __u16 random_seed[128] = {*/
+static const __u16 _random_seed[128] = {
     //0        1      2       3        4      5        6       7       8       9
 	0x2b75, 0x0bd0, 0x5ca3, 0x62d1, 0x1c93, 0x07e9, 0x2162, 0x3a72, 0x0d67, 0x67f9,
     0x1be7, 0x077d, 0x032f, 0x0dac, 0x2716, 0x2436, 0x7922, 0x1510, 0x3860, 0x5287,
@@ -356,7 +358,7 @@ __u32 _cal_random_seed(__u32 page)
 {
 	__u32 randomseed;
 
-	randomseed = random_seed[page%128];
+	randomseed = _random_seed[page%128];
 
 	return randomseed;
 }
@@ -575,8 +577,9 @@ __s32 PHY_Init(void)
     __u32 i;
 	NFC_INIT_INFO nand_info;
     //init RetryCount
-    for(i=0; i<8; i++)
+    for(i=0; i<8; i++) {
         RetryCount[i] = 0;
+    }
 	nand_info.bus_width = 0x0;
 	nand_info.ce_ctl = 0x0;
 	nand_info.ce_ctl1 = 0x0;

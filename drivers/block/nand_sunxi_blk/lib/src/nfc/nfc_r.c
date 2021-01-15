@@ -309,7 +309,7 @@ void _set_addr(__u8 *addr, __u8 cnt)
 
 __s32 _read_in_page_mode(NFC_CMD_LIST  *rcmd,void *mainbuf,void *sparebuf,__u8 dma_wait_mode)
 {
-	__s32 ret,ret1;
+	__s32 ret;
 	__s32 i;
 	__u32 cfg;
 	NFC_CMD_LIST *cur_cmd,*read_addr_cmd;
@@ -837,7 +837,7 @@ __s32 NFC_Init(NFC_INIT_INFO *nand_info )
 	ret = NFC_ChangMode( nand_info);
 
 	/*request special dma*/
-	if (NULL==NAND_RequestDMA())
+	if (0==NAND_RequestDMA())
 	{
 	    PRINT("NAND_RequestDMA  fail\n");
 	    return -1;
@@ -1297,7 +1297,9 @@ __s32 _vender_get_param_otp_hynix(__u8 *para, __u8 *addr, __u32 count)
     }
 
     if(error_flag)
+    {
         ret = -1;
+    }
 
 	// send 0xFF cmd
 	cfg = (NFC_SEND_CMD1 | NFC_WAIT_FLAG| 0xff);
@@ -1758,12 +1760,7 @@ __s32 NFC_SetDefaultParam(__u32 chip,__u8* default_value,__u32 read_retry_type)
     	return ret;
     }
 
-	else
-    {
-        return 0;
-    }
-
-
+    return 0;
 }
 
 
@@ -1786,7 +1783,7 @@ __s32 NFC_ReadRetry_off(__u32 chip) //sandisk readretry exit
 		return ret;
 	}
 
-	NFC_SetDefaultParam(chip,default_value,read_retry_mode);
+	return NFC_SetDefaultParam(chip,default_value,read_retry_mode);
 
 }
 

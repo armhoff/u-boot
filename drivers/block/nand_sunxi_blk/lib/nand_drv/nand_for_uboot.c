@@ -23,30 +23,37 @@
 */
 
 #include <common.h>
-#include <asm/arch/nand_bsp.h>
+#include <blk.h>
 #include <malloc.h>
+#include "../include/nand_bsp.h"
 
 #define  OOB_BUF_SIZE                   32
 
 extern int NAND_Print(const char * str, ...);
 static int OSAL_printf(const char * str, ...)
 {
-    NAND_Print(str);
+    return NAND_Print(str);
 }
 
-static block_dev_desc_t 	nand_blk_dev;
+/*@mhoffrog - adapted to mainline uBoot */
+/*static block_dev_desc_t 	nand_blk_dev;*/
+static struct blk_desc nand_blk_dev;
 
-block_dev_desc_t *nand_get_dev(int dev)
+/*@mhoffrog - FIXME - obsolete method never used */
+#if 0
+static struct blk_desc *nand_get_dev(int dev_num)
 {
-	nand_blk_dev.dev = dev;
-	nand_blk_dev.lba = sunxi_nand_getpart_size(dev);
+	nand_blk_dev.devnum = dev_num;
+	nand_blk_dev.lba = sunxi_nand_getpart_size(dev_num);
 
-	return ((block_dev_desc_t *) & nand_blk_dev);
+	return &nand_blk_dev;
 }
+#endif
 
-unsigned long  nand_read_uboot(int dev_num, unsigned long start, unsigned long blkcnt, void *dst)
+static unsigned long  nand_blk_read_uboot(struct blk_desc *block_dev, lbaint_t start, lbaint_t blkcnt, void *dst)
 {
-	start += sunxi_nand_getpart_offset(dev_num);
+	/* @mhoffrog - FIXME - get offset from block_dev directly */
+	start += sunxi_nand_getpart_offset(block_dev->devnum);
 	if(!NAND_LogicRead((int)start, (int )blkcnt, dst))
 	{
 		return blkcnt;
@@ -54,9 +61,10 @@ unsigned long  nand_read_uboot(int dev_num, unsigned long start, unsigned long b
 	return 0;
 }
 
-unsigned long  nand_write_uboot(int dev_num, unsigned long start, unsigned long blkcnt, void *dst)
+static unsigned long  nand_blk_write_uboot(struct blk_desc *block_dev, lbaint_t start, lbaint_t blkcnt, const void *dst)
 {
-	start += sunxi_nand_getpart_offset(dev_num);
+	/* @mhoffrog - FIXME - get offset from block_dev directly */
+	start += sunxi_nand_getpart_offset(block_dev->devnum);
 	if(!NAND_LogicWrite((int)start, (int )blkcnt, dst))
 	{
 		return blkcnt;
@@ -64,7 +72,9 @@ unsigned long  nand_write_uboot(int dev_num, unsigned long start, unsigned long 
 	return 0;
 }
 
-int nand_erase_uboot(char *dev_part)
+/* @mhoffrog - FIXME method never used */
+#if 0
+static int nand_blk_erase_uboot(char *dev_part)
 {
 	int start;
 	int size;
@@ -129,13 +139,13 @@ int nand_erase_uboot(char *dev_part)
 
 	return 0;
 }
+#endif
 
-
-int nand_init_uboot(int verbose)
+static int nand_blk_init_uboot(int verbose)
 {
 	nand_blk_dev.if_type = IF_TYPE_NAND;
 	nand_blk_dev.part_type = PART_TYPE_DOS;
-	nand_blk_dev.dev = 0;
+	nand_blk_dev.devnum = 0;
 	nand_blk_dev.lun = 0;
 	nand_blk_dev.type = 0;
 
@@ -143,8 +153,9 @@ int nand_init_uboot(int verbose)
 	nand_blk_dev.blksz = 512;
 	nand_blk_dev.lba = 0;
 	nand_blk_dev.removable = 0;
-	nand_blk_dev.block_read = nand_read_uboot;
-	nand_blk_dev.block_write = nand_write_uboot;
+	/* @mhoffrog FIXME add other func pointer required */
+	nand_blk_dev.block_read = nand_blk_read_uboot;
+	nand_blk_dev.block_write = nand_blk_write_uboot;
 
 	sunxi_nand_scan_partition();
 	//fat_register_device(&nand_blk_dev, 1);
@@ -261,7 +272,9 @@ int NAND_PhyInit(void)
 	}
 
   //modify ValidBlkRatio
-	ret = script_parser_fetch("nand_para","good_block_ratio", &nand_good_block_ratio, sizeof(int));
+  //@mhoffrog - FIXME - get config from uBoot env
+  //ret = script_parser_fetch("nand_para","good_block_ratio", &nand_good_block_ratio, sizeof(int));
+  nand_good_block_ratio = 0;
   if (ret)
   {
     	printk("nand init fetch nand_good_block_ratio failed\n");
@@ -316,7 +329,7 @@ int NAND_PhyExit(void)
 
 ************************************************************************************************************************
 */
-int NAND_LogicWrite(uint nSectNum, uint nSectorCnt, void * pBuf)
+int NAND_LogicWrite(uint nSectNum, uint nSectorCnt, const void * pBuf)
 {
     #ifdef BOOT_CACHE_OPEN
 	    return (NAND_CacheWrite(nSectNum, nSectorCnt, pBuf));
@@ -405,7 +418,7 @@ int NAND_Init(void)
 #endif
 
     OSAL_printf("NB1 : init ok\n");
-    nand_init_uboot(0);
+    nand_blk_init_uboot(0);
 
     return result;
 }

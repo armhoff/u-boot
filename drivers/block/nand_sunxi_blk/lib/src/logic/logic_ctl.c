@@ -1234,7 +1234,7 @@ void echo_write_data (__u32 nSectNum, __u32 nSectorCnt, void* pBuf)
 *               = -1    write failed.
 ************************************************************************************************************************
 */
-__s32 LML_Write(__u32 nSectNum, __u32 nSectorCnt, void* pBuf)
+__s32 LML_Write(__u32 nSectNum, __u32 nSectorCnt, const void* pBuf)
 {
     __s32   i, result;
     __u32   tmpMidPageCnt, tmpPageNum, tmpPageCnt;
@@ -1262,7 +1262,7 @@ __s32 LML_Write(__u32 nSectNum, __u32 nSectorCnt, void* pBuf)
     //calculate the logical parameter for the sectors
     _CalculateSectPar(nSectNum, nSectorCnt, &tmpHeadPage, &tmpMidPageCnt, &tmpTailPage);
 
-    tmpBuf = pBuf;
+    tmpBuf = (__u8*)pBuf;
 
     //calculate the buffer address for page align
     for(i=0; i<SECTOR_CNT_OF_LOGIC_PAGE; i++)

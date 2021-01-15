@@ -199,7 +199,7 @@ __s32 LML_Read(__u32 nLba, __u32 nLength, void* pBuf);
 *               = -1    write failed.
 ************************************************************************************************************************
 */
-__s32 LML_Write(__u32 nLba, __u32 nLength, void* pBuf);
+__s32 LML_Write(__u32 nLba, __u32 nLength, const void* pBuf);
 
 
 /*

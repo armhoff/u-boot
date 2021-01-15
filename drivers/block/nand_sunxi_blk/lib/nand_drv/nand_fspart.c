@@ -22,8 +22,8 @@
 * MA 02111-1307 USA
 */
 #include <common.h>
-#include <asm/arch/partition.h>
-#include <asm/arch/nand_bsp.h>
+#include "../include/nand_bsp.h"
+#include "../include/partition.h"
 #include <fastboot.h>
 
 typedef struct tag_CRC32_DATA
@@ -113,7 +113,7 @@ int sunxi_nand_getpart_offset_byname(const char *part_name)
 
 	for(i=0;i<mbr->PartCount;i++)
 	{
-		if(!strcmp(part_name, mbr->array[i].name))
+		if(!strcmp(part_name, (char*)mbr->array[i].name))
 		{
 			return mbr->array[i].addrlo;
 		}
@@ -129,7 +129,7 @@ int sunxi_nand_getpart_size_byname(const char *part_name)
 
 	for(i=0;i<mbr->PartCount;i++)
 	{
-		if(!strcmp(part_name, mbr->array[i].name))
+		if(!strcmp(part_name, (char*)mbr->array[i].name))
 		{
 			return mbr->array[i].lenlo;
 		}

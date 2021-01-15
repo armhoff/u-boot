@@ -23,7 +23,7 @@
 */
 #include  <common.h>
 #include  <malloc.h>
-#include  <asm/arch/dma.h>
+#include  "../include/dma_sunxi.h"
 
 unsigned int hDMA;
 
@@ -482,8 +482,9 @@ void *NAND_IORemap(unsigned int base_addr, unsigned int size)
 */
 int NAND_Print(const char * str, ...)
 {
+	int ret = 0;
 #ifdef DEBUG
-    printf(str);
+    ret = printf(str);
 #endif
-    return 0;
+    return ret;
 }
