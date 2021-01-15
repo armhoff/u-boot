@@ -32,7 +32,9 @@ typedef struct tag_CRC32_DATA
 	unsigned int CRC_32_Tbl[256];	//用来保存码表
 }CRC32_DATA_t;
 
-char BOOTFSMBR_buf[16*1024];
+/*@mhoffrog - FIXME use macro defined */
+//char BOOTFSMBR_buf[16*1024];
+static char BOOTFSMBR_buf[MBR_SIZE];
 
 static __u32 _calc_crc32(void * buffer, __u32 length)
 {
@@ -73,11 +75,16 @@ int sunxi_nand_getpart_num(void)
 	return mbr->PartCount;
 }
 
-int sunxi_nand_getpart_name(int index, char *buf)
+int sunxi_nand_getpart_name(int part_index, char *buf)
 {
 	MBR        *mbr  = (MBR*)BOOTFSMBR_buf;
 
-	strncpy(buf, (const char *)mbr->array[index].name, 12);
+	if(part_index >= mbr->PartCount)
+	{
+		return -1;
+	}
+
+	strncpy(buf, (const char *)mbr->array[part_index].name, 12);
 	return 0;
 
 }

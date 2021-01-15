@@ -39,20 +39,8 @@ static int OSAL_printf(const char * str, ...)
 /*static block_dev_desc_t 	nand_blk_dev;*/
 static struct blk_desc nand_blk_dev;
 
-/*@mhoffrog - FIXME - obsolete method never used */
-#if 0
-static struct blk_desc *nand_get_dev(int dev_num)
-{
-	nand_blk_dev.devnum = dev_num;
-	nand_blk_dev.lba = sunxi_nand_getpart_size(dev_num);
-
-	return &nand_blk_dev;
-}
-#endif
-
 static unsigned long  nand_blk_read_uboot(struct blk_desc *block_dev, lbaint_t start, lbaint_t blkcnt, void *dst)
 {
-	/* @mhoffrog - FIXME - get offset from block_dev directly */
 	start += sunxi_nand_getpart_offset(block_dev->devnum);
 	if(!NAND_LogicRead((int)start, (int )blkcnt, dst))
 	{
@@ -63,12 +51,17 @@ static unsigned long  nand_blk_read_uboot(struct blk_desc *block_dev, lbaint_t s
 
 static unsigned long  nand_blk_write_uboot(struct blk_desc *block_dev, lbaint_t start, lbaint_t blkcnt, const void *dst)
 {
-	/* @mhoffrog - FIXME - get offset from block_dev directly */
 	start += sunxi_nand_getpart_offset(block_dev->devnum);
 	if(!NAND_LogicWrite((int)start, (int )blkcnt, dst))
 	{
 		return blkcnt;
 	}
+	return 0;
+}
+
+static unsigned long  nand_blk_erase_uboot(struct blk_desc *block_dev, lbaint_t start, lbaint_t blkcnt)
+{
+	/* @mhoffrog - FIXME - nothing to do for erase on this device */
 	return 0;
 }
 
@@ -156,6 +149,7 @@ static int nand_blk_init_uboot(int verbose)
 	/* @mhoffrog FIXME add other func pointer required */
 	nand_blk_dev.block_read = nand_blk_read_uboot;
 	nand_blk_dev.block_write = nand_blk_write_uboot;
+	nand_blk_dev.block_erase = nand_blk_erase_uboot;
 
 	sunxi_nand_scan_partition();
 	//fat_register_device(&nand_blk_dev, 1);
@@ -1223,3 +1217,25 @@ int NAND_BadBlockScan(const boot_nand_para_t *nand_param)
 
  	return good_block_ratio;
 }
+
+/*@mhoffrog - added for main line uBoot legacy driver implementation */
+static int nand_get_dev(int dev, struct blk_desc **descp)
+{
+	if ((dev < 0) || (dev >= sunxi_nand_getpart_num()))
+	{
+		return -ENODEV;
+	}
+	nand_blk_dev.devnum = dev;
+	nand_blk_dev.lba = sunxi_nand_getpart_size(dev);
+
+	*descp = &nand_blk_dev;
+
+	return 0;
+}
+
+U_BOOT_LEGACY_BLK(nand) = {
+	.if_typename	= "nand",
+	.if_type	= IF_TYPE_NAND,
+	.max_devs	= -1,
+	.get_dev	= nand_get_dev,
+};

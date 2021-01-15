@@ -93,18 +93,29 @@ config NAND_PXA3XX
 	  This enables the driver for the NAND flash device found on
 	  PXA3xx processors (NFCv1) and also on Armada 370/XP (NFCv2).
 
+config NAND_SUNXI_BLK
+	bool "Support for NAND on Allwinner SoCs (block device)"
+	depends on (MACH_SUN4I || MACH_SUN5I || MACH_SUN7I)
+	default y
+	select SYS_NAND_SELF_INIT
+	select SYS_NAND_U_BOOT_LOCATIONS
+	imply SPL_NAND_SUNXI
+	---help---
+	  Enable support for NAND. This option enables the
+	  Allwinner NAND block device and SPL driver.
+	  
 config NAND_SUNXI
-	bool "Support for NAND on Allwinner SoCs"
-	depends on MACH_SUN4I || MACH_SUN5I || MACH_SUN7I
+	bool "Support for NAND on Allwinner SoCs (mtd device)"
+	depends on !NAND_SUNXI_BLK && (MACH_SUN4I || MACH_SUN5I || MACH_SUN7I)
 	select SYS_NAND_SELF_INIT
 	select SYS_NAND_U_BOOT_LOCATIONS
 	imply SPL_NAND_SUNXI
 	imply CMD_NAND
 	---help---
-	Enable support for NAND. This option enables the standard and
-	SPL drivers.
-	The SPL driver only supports reading from the NAND using DMA
-	transfers.
+	  Enable support for NAND. This option enables the standard and
+	  SPL drivers.
+	  The SPL driver only supports reading from the NAND using DMA
+	  transfers.
 
 config SPL_NAND_SUNXI
 	bool "Support Allwinner SoCs NAND controller for SPL"

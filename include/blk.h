@@ -34,6 +34,9 @@ enum if_type {
 	IF_TYPE_HOST,
 	IF_TYPE_SYSTEMACE,
 	IF_TYPE_NVME,
+#ifdef CONFIG_NAND_SUNXI_BLK
+	IF_TYPE_NAND,
+#endif
 
 	IF_TYPE_COUNT,			/* Number of interface types */
 };

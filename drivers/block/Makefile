@@ -15,3 +15,7 @@ obj-$(CONFIG_IDE) += ide.o
 obj-$(CONFIG_SANDBOX) += sandbox.o
 obj-$(CONFIG_SYSTEMACE) += systemace.o
 obj-$(CONFIG_BLOCK_CACHE) += blkcache.o
+
+ifndef CONFIG_SPL_BUILD
+obj-$(CONFIG_NAND_SUNXI_BLK) += nand_sunxi_blk/
+endif
