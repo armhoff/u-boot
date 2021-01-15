@@ -45,6 +45,7 @@ static int spl_nand_load_element(struct spl_image_info *spl_image,
 {
 	int err;
 
+	puts("@mah: Loading image header ...\n");
 	err = nand_spl_load_image(offset, sizeof(*header), (void *)header);
 	if (err)
 		return err;
@@ -61,9 +62,11 @@ static int spl_nand_load_element(struct spl_image_info *spl_image,
 		load.read = spl_nand_fit_read;
 		return spl_load_simple_fit(spl_image, &load, offset, header);
 	} else {
+		puts("@mah: Parsing image header ...\n");
 		err = spl_parse_image_header(spl_image, header);
 		if (err)
 			return err;
+		printf("@mah: Loading image of size=%d to loadAddr=0x%08lx ...\n", spl_image->size, spl_image->load_addr);
 		return nand_spl_load_image(offset, spl_image->size,
 					   (void *)(ulong)spl_image->load_addr);
 	}
@@ -136,14 +139,18 @@ static int spl_nand_load_image(struct spl_image_info *spl_image,
 #endif
 #endif
 	/* Load u-boot */
+	printf("@mah: Trying to load image from NAND offset=0x%08x ...\n", CONFIG_SYS_NAND_U_BOOT_OFFS);
 	err = spl_nand_load_element(spl_image, CONFIG_SYS_NAND_U_BOOT_OFFS,
 				    header);
 #ifdef CONFIG_SYS_NAND_U_BOOT_OFFS_REDUND
 #if CONFIG_SYS_NAND_U_BOOT_OFFS != CONFIG_SYS_NAND_U_BOOT_OFFS_REDUND
-	if (err)
+	if (err) {
+		printf("@mah: Trying to load image from NAND redund offset=0x%08x ...\n", CONFIG_SYS_NAND_U_BOOT_OFFS_REDUND);
 		err = spl_nand_load_element(spl_image,
 					    CONFIG_SYS_NAND_U_BOOT_OFFS_REDUND,
 					    header);
+	}
+
 #endif
 #endif
 	nand_deselect();
